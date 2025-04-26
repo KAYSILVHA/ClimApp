@@ -1,15 +1,17 @@
-import { StyleSheet, View, Text, Image, ScrollView, TextInput } from "react-native"
+import { StyleSheet, View, Text, Image, ScrollView, TextInput, TouchableOpacity } from "react-native"
 import { LinearGradient } from 'expo-linear-gradient';
 import citiesData from "../data/cities.json";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 
 const Cities = () => {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [filteredCities, setFilteredCities] = useState(citiesData);
 
     useEffect(() => {
-        const newFilteredCities = citiesData.filter(city => city.city.includes(search));
+        const newFilteredCities = citiesData.filter(city => city.city.toLocaleLowerCase().includes(search.toLowerCase()));
         setFilteredCities(newFilteredCities);
 
     }, [search]);
@@ -30,12 +32,17 @@ const Cities = () => {
             </View>
             <ScrollView>
                 <View style={style.scrollList}>
-                    {citiesData.map(city => (
-                        <View style={style.listItem} key={city.city}>
+                    {filteredCities.map((city) => (
+                        <TouchableOpacity
+                            onPress={() => {
+                                router.push(`/${city.city}`)
+                            }}
+                            style={style.listItem}
+                            key={city.city}>
                             <Image style={style.cityImage} source={require("../assets/images/Vector.png")} />
                             <Text style={style.cityName}>{city.city.replace(", ", " - ")}</Text>
                             <Text style={style.cityTemp}>{city.temp}º</Text>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
             </ScrollView>
@@ -50,7 +57,7 @@ const style = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 15,
-        gap: 16,
+        gap: 4,
         paddingTop: 40,
     },
     scrollList: {
